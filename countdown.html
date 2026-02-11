@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关帐日倒数</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", Arial, sans-serif;
+        }
+
+        /* 页面主体样式，居中显示 */
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* 标题样式 */
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        /* 天数卡片样式（放大显示） */
+        .days-box {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px 80px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* 天数数字样式（放大突出） */
+        .days-number {
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        /* 单位文字样式 */
+        .days-label {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+
+        /* 适配小屏幕（手机） */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .days-number {
+                font-size: 6rem;
+            }
+            .days-label {
+                font-size: 1.5rem;
+            }
+            .days-box {
+                padding: 30px 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>距离关帐日还有</h1>
+    <div class="days-box">
+        <div id="days" class="days-number">00</div>
+        <div class="days-label">天</div>
+    </div>
+
+    <script>
+        // 获取显示天数的DOM元素
+        const daysEl = document.getElementById('days');
+
+        // 计算目标日期（每月10日，关帐日）
+        function getTargetDate() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentDay = now.getDate();
+            
+            // 如果当前日期超过10日，目标日期为下个月10日；否则为本月10日
+            let targetMonth = currentDay > 10 ? currentMonth + 1 : currentMonth;
+            let targetYear = now.getFullYear();
+            
+            // 处理跨年情况（12月+1月=13月，需切换到下一年1月）
+            if (targetMonth > 11) {
+                targetMonth = 0;
+                targetYear += 1;
+            }
+
+            // 创建目标日期对象（时分秒设为0，确保从当天0点开始计算）
+            const targetDate = new Date(targetYear, targetMonth, 10, 0, 0, 0);
+            return targetDate;
+        }
+
+        // 补零函数：确保数字为两位数（如1→01）
+        function padZero(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        // 更新天数倒计时（简化逻辑，仅计算天数）
+        function updateCountdown() {
+            const now = new Date();
+            const target = getTargetDate();
+            const diff = target - now; // 时间差（毫秒）
+
+            // 仅计算剩余天数（向下取整）
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            // 更新DOM显示
+            daysEl.textContent = padZero(days);
+        }
+
+        // 初始化倒计时，每分钟更新一次（仅显示天数无需每秒刷新）
+        updateCountdown();
+        setInterval(updateCountdown, 60000); // 60000毫秒 = 1分钟
+    </script>
+</body>
+</html>
